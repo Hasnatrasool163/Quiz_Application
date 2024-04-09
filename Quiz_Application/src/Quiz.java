@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class Quiz extends JFrame implements ActionListener {
 
@@ -348,15 +350,6 @@ public class Quiz extends JFrame implements ActionListener {
         submit.setEnabled(false);
         add(submit);
 
-//        JButton checkScore = new JButton("Check Score");
-//        checkScore.setBounds(900, 710, 200, 40); // Adjust the position as needed
-//        checkScore.setFont(new Font("Tahoma", Font.PLAIN, 22));
-//        checkScore.setBackground(new Color(30, 144, 255));
-//        checkScore.setForeground(Color.WHITE);
-//        checkScore.addActionListener(this);
-//        add(checkScore);
-
-
         start(count);
 
         setVisible(true);
@@ -369,6 +362,7 @@ public class Quiz extends JFrame implements ActionListener {
             opt2.setEnabled(true);
             opt3.setEnabled(true);
             opt4.setEnabled(true);
+            lifeline.setEnabled(true);
 
             ans_given = 1;
             if (groupoptions.getSelection() == null) {
@@ -385,14 +379,7 @@ public class Quiz extends JFrame implements ActionListener {
             count++;
             start(count);
         } else if (ae.getSource() == lifeline) {
-            if (count == 2 || count == 4 || count == 6 || count == 8 || count == 9) {
-                opt2.setEnabled(false);
-                opt3.setEnabled(false);
-            } else {
-                opt1.setEnabled(false);
-                opt4.setEnabled(false);
-            }
-//            lifeline.setEnabled(false);
+            useLifeline();
         } else if (ae.getSource() == submit) {
             ans_given = 1;
             if (groupoptions.getSelection() == null) {
@@ -401,10 +388,6 @@ public class Quiz extends JFrame implements ActionListener {
                 useranswers[count][0] = groupoptions.getSelection().getActionCommand();
             }
 
-//            for (int i = 0; i < useranswers.length; i++) {
-//                    if (useranswers[i][0].equals(answers[i][1])) {
-//                        score += 10;
-//                    }
             for (int i = 0; i < useranswers.length; i++) {
                 if (useranswers[i][0] != null && useranswers[i][0].equals(answers[i][1])) {
                     score += 10;
@@ -417,6 +400,28 @@ public class Quiz extends JFrame implements ActionListener {
             new Score(name, score);
         }
     }
+
+private void useLifeline() {
+    // Track the indexes of the incorrect answers
+    ArrayList<Integer> incorrectIndexes = new ArrayList<>();
+    for (int i = 1; i <= 4; i++) {
+        if (!questions[count][i].equals(answers[count][1])) {
+            incorrectIndexes.add(i);
+        }
+    }
+
+    // Randomly select 2 incorrect answers to disable
+    Collections.shuffle(incorrectIndexes);
+    incorrectIndexes = new ArrayList<>(incorrectIndexes.subList(0, 2));
+
+    // Disable the selected incorrect answers
+    JRadioButton[] options = {opt1, opt2, opt3, opt4};
+    for (int i = 0; i < incorrectIndexes.size(); i++) {
+        int indexToDisable = incorrectIndexes.get(i) - 1; // Adjust for zero-based index
+        options[indexToDisable].setEnabled(false);
+    }
+    lifeline.setEnabled(false);
+}
 
     public void paint(Graphics g) {
         super.paint(g);
@@ -449,6 +454,7 @@ public class Quiz extends JFrame implements ActionListener {
             opt2.setEnabled(true);
             opt3.setEnabled(true);
             opt4.setEnabled(true);
+            lifeline.setEnabled(true);
 
             if (count == 33) {
                 next.setEnabled(false);
